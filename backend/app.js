@@ -19,6 +19,21 @@ app.use(express.json());
 let users = [];
 let notes = [];
 
+// Automatically create default admin user
+(async () => {
+  const defaultAdminUsername = "Admin";
+  const defaultAdminPassword = "123456";
+
+  const existingAdmin = users.find(u => u.username === defaultAdminUsername);
+  if (!existingAdmin) {
+    const hashedPassword = await bcrypt.hash(defaultAdminPassword, 10);
+    const adminUser = { id: users.length + 1, username: defaultAdminUsername, password: hashedPassword, role: "admin" };
+    users.push(adminUser);
+    console.log(`Default admin created - username: ${defaultAdminUsername}, password: ${defaultAdminPassword}`);
+  }
+})();
+
+// Middleware to authenticate JWT
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -31,6 +46,7 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Middleware to check admin role
 const isAdmin = (req, res, next) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access required' });
@@ -87,7 +103,7 @@ app.post('/notes', authenticateToken, (req, res) => {
 
 // Get all notes (protected)
 app.get('/notes', authenticateToken, (req, res) => {
-  const userNotes = notes.filter(note => note.userId === req.user.id || req.user.role === 'admin' || req.user.role === 'user' );
+  const userNotes = notes.filter(note => note.userId === req.user.id || req.user.role === 'admin' || req.user.role === 'user');
   res.json(userNotes);
 });
 
@@ -103,6 +119,7 @@ app.delete('/notes/:id', authenticateToken, isAdmin, (req, res) => {
   res.json({ message: 'Note deleted successfully' });
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
