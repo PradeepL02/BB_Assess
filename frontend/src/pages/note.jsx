@@ -246,12 +246,12 @@ export default function NotesPage() {
       <Header />
 
       {/* Buttons */}
-      <div className="max-w-full mx-auto mt-3 mb-6 flex justify-end gap-2">
-        {userRole === "admin" && (
+      <div className="max-w-full mx-auto mt-3 mb-3 flex justify-end gap-2 p-4">
+        {/* {userRole === "admin" && (
           <Button type="default" onClick={() => setIsUserModalVisible(true)}>
             Add User
           </Button>
-        )}
+        )} */}
         <Button type="primary" onClick={() => setIsNoteModalVisible(true)}>
           Add Note
         </Button>
